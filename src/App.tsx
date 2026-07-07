@@ -1,13 +1,14 @@
 import { ChatInput } from '@/components/ui/chat-input';
 import { DashboardLayout } from '@/components/ui/dashboard-layout';
 import { DashboardLeftPanel } from '@/components/ui/dashboard-left-panel';
+import { DashboardChartsPanel } from '@/components/ui/dashboard-charts-panel';
 
 export default function App() {
     return (
         <main className="min-h-screen bg-slate-950 px-6 py-16 text-slate-100">
-            <div className="mx-auto max-w-6xl">
+            <div className="mx-auto max-w-8xl">
                 <DashboardLayout
-                    left={<DashboardLeftPanel />}
+                    left={<DashboardChartsPanel />}
                     right={
                         <ChatInput
                             placeholder="Ask anything or upload a file..."

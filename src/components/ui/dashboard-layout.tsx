@@ -24,6 +24,8 @@ export function DashboardLayout({
         minRight,
     });
 
+    const rightPercent = Math.max(100 - leftWidth, 0);
+
     return (
         <div
             ref={containerRef}
@@ -31,7 +33,7 @@ export function DashboardLayout({
                 'grid min-h-[420px] overflow-hidden rounded-3xl border border-slate-700 bg-slate-950/95 shadow-2xl',
                 className,
             )}
-            style={{ gridTemplateColumns: `${leftWidth}% 1.5rem minmax(0, ${100 - leftWidth}%)` }}
+            style={{ gridTemplateColumns: `calc(100% - 1.5rem - min(${rightPercent}%, 25vw, 300px)) 1.5rem minmax(0, min(${rightPercent}%, 25vw, 300px))` }}
         >
             <section className="overflow-auto border-r border-slate-800 bg-slate-950 p-4">
                 {left}

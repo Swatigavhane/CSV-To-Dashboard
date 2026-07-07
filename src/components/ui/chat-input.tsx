@@ -41,12 +41,12 @@ export function ChatInput({ placeholder = 'Type your message...', onSubmit, clas
                 className,
             )}
         >
-            <div className="min-h-[200px] rounded-3xl border border-slate-800 bg-slate-900/90 p-4">
+            <div className="min-h-[100px] rounded-3xl border border-slate-800 bg-slate-900/90">
                 <textarea
                     value={text}
                     onChange={(event) => setText(event.target.value)}
                     placeholder={placeholder}
-                    className="min-h-[200px] w-full resize-none rounded-3xl border border-slate-700 bg-slate-950/90 px-4 py-4 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20"
+                    className="min-h-[100px] w-full resize-none rounded-3xl border border-slate-700 bg-slate-950/90 px-4 py-4 text-sm text-slate-100 placeholder:text-slate-500 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-500/20"
                 />
             </div>
 

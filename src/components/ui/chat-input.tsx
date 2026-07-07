@@ -1,6 +1,7 @@
 import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
+import { FileInput } from '@/components/ui/file-input';
 import { cn } from '@/lib/utils';
 
 export interface ChatInputProps {
@@ -14,9 +15,11 @@ export function ChatInput({ placeholder = 'Type your message...', onSubmit, clas
     const [file, setFile] = React.useState<File | null>(null);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+    const canSend = !!file || text.trim().length >= 20;
+
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        if (!text.trim() && !file) {
+        if (!canSend) {
             return;
         }
 
@@ -30,6 +33,26 @@ export function ChatInput({ placeholder = 'Type your message...', onSubmit, clas
 
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const selectedFile = event.target.files?.[0] ?? null;
+        if (!selectedFile) {
+            setFile(null);
+            return;
+        }
+
+        const acceptedTypes = [
+            'text/csv',
+            'application/vnd.ms-excel',
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        ];
+        const acceptedExtensions = ['.csv', '.xls', '.xlsx'];
+        const fileName = selectedFile.name.toLowerCase();
+        const isAcceptedType = acceptedTypes.includes(selectedFile.type);
+        const isAcceptedExtension = acceptedExtensions.some((ext) => fileName.endsWith(ext));
+
+        if (!isAcceptedType && !isAcceptedExtension) {
+            setFile(null);
+            return;
+        }
+
         setFile(selectedFile);
     };
 
@@ -51,11 +74,10 @@ export function ChatInput({ placeholder = 'Type your message...', onSubmit, clas
             </div>
 
             <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center">
-                <input
-                    ref={fileInputRef}
-                    type="file"
+                <FileInput
+                    inputRef={fileInputRef}
+                    accept=".csv,.xls,.xlsx,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
                     onChange={handleFileChange}
-                    className="hidden"
                 />
 
                 <Button type="button" variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
@@ -71,7 +93,9 @@ export function ChatInput({ placeholder = 'Type your message...', onSubmit, clas
                 )}
 
                 <div className="ml-auto flex items-center gap-2">
-                    <Button type="submit">Send</Button>
+                    <Button type="submit" disabled={!canSend}>
+                        Send
+                    </Button>
                 </div>
             </div>
         </form>

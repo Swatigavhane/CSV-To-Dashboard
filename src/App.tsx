@@ -3,21 +3,44 @@ import { ChatInput } from '@/components/ui/chat-input';
 import { DashboardLayout } from '@/components/ui/dashboard-layout';
 import { DashboardChartsPanel } from '@/components/ui/dashboard-charts-panel';
 import { createSchemaFromJson } from '@/lib/schema';
-import { useLLM } from '@/hooks/use-llm';
-import { llamaTGIModel, type LlamaOptions } from '@/lib/llama';
 import { parseCsvFile } from '@/lib/csv';
 import { isCsvFile } from '@/lib/utils';
 
+const LLM_ENDPOINT = 'http://localhost:8080/v1/models/llama-2-7b/generate';
+
 export default function App() {
     const [hasSubmitted, setHasSubmitted] = useState(false);
+    const [llmResponse, setLlmResponse] = useState('');
+    const [llmLoading, setLlmLoading] = useState(false);
+    const [llmError, setLlmError] = useState<string | null>(null);
 
-    // Configure a local Llama endpoint and model name here.
-    // Update `baseUrl` and `modelName` to match your local LLM server.
-    const model = llamaTGIModel('llama-2-7b', 'http://localhost:8080');
+    const callDirectLLM = async (prompt: string) => {
+        setLlmLoading(true);
+        setLlmError(null);
+        setLlmResponse('');
 
-    const { response: llmResponse, loading: llmLoading, error: llmError, callLLM } = useLLM<string, LlamaOptions>(
-        model,
-    );
+        try {
+            const res = await fetch(LLM_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt }),
+            });
+
+            if (!res.ok) {
+                const text = await res.text();
+                throw new Error(`Request failed: ${res.status} ${text}`);
+            }
+
+            const data = await res.json();
+            const generated = data?.results?.[0]?.generated_text ?? data?.generated_text ?? JSON.stringify(data);
+            setLlmResponse(typeof generated === 'string' ? generated : JSON.stringify(generated));
+        } catch (error) {
+            const message = error instanceof Error ? error.message : 'Unknown error';
+            setLlmError(message);
+        } finally {
+            setLlmLoading(false);
+        }
+    };
 
     const handleSubmit = async ({ text, file }: { text: string; file?: File; }) => {
         let parsedCsv;
@@ -39,8 +62,8 @@ export default function App() {
 
             const prompt = `${text}\n\nSchema: ${JSON.stringify(inferredSchema, null, 2)}`;
 
-            const llmOutput = await callLLM(prompt, { max_tokens: 256 });
-            console.log('LLM output:', llmOutput);
+            await callDirectLLM(prompt);
+            console.log('Prompt sent to direct LLM endpoint');
         } catch (error) {
             console.error('Submit error:', error);
         } finally {
@@ -75,9 +98,9 @@ export default function App() {
                             {llmLoading ? (
                                 <div className="text-xs text-slate-400">Thinking...</div>
                             ) : llmError ? (
-                                <div className="text-red-400">{String(llmError.message)}</div>
+                                <div className="text-red-400">{llmError}</div>
                             ) : (
-                                <pre className="whitespace-pre-wrap text-xs">{String(llmResponse ?? '')}</pre>
+                                <pre className="whitespace-pre-wrap text-xs">{llmResponse}</pre>
                             )}
                         </div>
                     </div>

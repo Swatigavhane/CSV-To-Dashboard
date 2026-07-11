@@ -14,10 +14,13 @@
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
+    "@huggingface/inference": "^4.13.23",
     "@radix-ui/react-slot": "^1.1.2",
     "@tanstack/react-table": "^8.21.3",
+    "body-parser": "^2.3.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "dotenv": "^17.4.2",
     "lucide-react": "^0.469.0",
     "papaparse": "^5.5.4",
     "react": "^18.3.1",

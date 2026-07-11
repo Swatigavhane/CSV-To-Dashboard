@@ -10,7 +10,6 @@ import { isCsvFile } from '@/lib/utils';
 
 export default function App() {
     const [hasSubmitted, setHasSubmitted] = useState(false);
-    const [schema, setSchema] = useState<Record<string, string> | null>(null);
 
     // Configure a local Llama endpoint and model name here.
     // Update `baseUrl` and `modelName` to match your local LLM server.
@@ -36,10 +35,9 @@ export default function App() {
                 return;
             }
 
-            setSchema(inferredSchema);
             console.log('Inferred schema:', inferredSchema);
 
-            let prompt = `${text} \n\n Schema: ${JSON.stringify(inferredSchema, null, 2)} `;
+            const prompt = `${text}\n\nSchema: ${JSON.stringify(inferredSchema, null, 2)}`;
 
             const llmOutput = await callLLM(prompt, { max_tokens: 256 });
             console.log('LLM output:', llmOutput);

@@ -1,24 +1,24 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 
-export type LLMModelOptions = Record<string, unknown> & { signal?: AbortSignal };
+export type LLMModelOptions = object & { signal?: AbortSignal };
 
-export type LLMModelFunction = (
-  input: string,
-  options?: LLMModelOptions,
-) => Promise<any>;
+export type LLMModelFunction<
+  TResponse = unknown,
+  TOptions extends LLMModelOptions = LLMModelOptions,
+> = (input: string, options?: TOptions) => Promise<TResponse>;
 
-export interface UseLLMResult {
-  response: any | null;
+export interface UseLLMResult<TResponse = unknown> {
+  response: TResponse | null;
   loading: boolean;
   error: Error | null;
-  callLLM: (input: string, options?: Record<string, unknown>) => Promise<any | void>;
+  callLLM: (input: string, options?: Record<string, unknown>) => Promise<TResponse | void>;
   abort: () => void;
 }
 
-export function useLLM(
-  model: LLMModelFunction,
-): UseLLMResult {
-  const [response, setResponse] = useState<any | null>(null);
+export function useLLM<TResponse = unknown, TOptions extends LLMModelOptions = LLMModelOptions>(
+  model: LLMModelFunction<TResponse, TOptions>,
+): UseLLMResult<TResponse> {
+  const [response, setResponse] = useState<TResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const abortController = useRef<AbortController | null>(null);
@@ -41,7 +41,7 @@ export function useLLM(
       setResponse(null);
 
       try {
-        const result = await model(input, { ...options, signal: controller.signal });
+        const result = await model(input, { ...(options ?? {}), signal: controller.signal } as TOptions);
         setResponse(result);
         return result;
       } catch (err) {

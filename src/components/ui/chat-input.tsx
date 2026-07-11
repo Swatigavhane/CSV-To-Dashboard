@@ -6,7 +6,7 @@ import { cn } from '@/lib/utils';
 
 export interface ChatInputProps {
     placeholder?: string;
-    onSubmit: (payload: { text: string; file?: File }) => void;
+    onSubmit: (payload: { text: string; file?: File; parsedCsv?: Record<string, any>[] }) => void;
     className?: string;
 }
 
@@ -17,7 +17,7 @@ export function ChatInput({ placeholder = 'Type your message...', onSubmit, clas
 
     const canSend = !!file || text.trim().length >= 20;
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (!canSend) {
             return;

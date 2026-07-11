@@ -1,4 +1,4 @@
-import * as React from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 export interface UseResizableSplitOptions {
   initialLeftWidth?: number;
@@ -11,11 +11,11 @@ export function useResizableSplit({
   minLeft = 20,
   minRight = 20,
 }: UseResizableSplitOptions = {}) {
-  const [leftWidth, setLeftWidth] = React.useState(initialLeftWidth);
-  const [dragging, setDragging] = React.useState(false);
-  const containerRef = React.useRef<HTMLDivElement>(null);
+  const [leftWidth, setLeftWidth] = useState(initialLeftWidth);
+  const [dragging, setDragging] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!dragging) {
       return;
     }

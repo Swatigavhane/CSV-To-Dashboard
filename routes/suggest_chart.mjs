@@ -1,7 +1,8 @@
 import { InferenceClient } from '@huggingface/inference';
 import 'dotenv/config';
 
-const client = new InferenceClient("huggingfaceToken");
+const token = process.env.HUGGINGFACE_TOKEN || process.env.HF_TOKEN || process.env.HUGGINGFACE_API_KEY;
+const client = token ? new InferenceClient(token) : new InferenceClient();
 
 export async function suggestChart(reqBody) {
     console.log('Received reqBody:', reqBody);

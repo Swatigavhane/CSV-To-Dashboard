@@ -1,11 +1,12 @@
+import 'dotenv/config';
 import http from 'http';
 import bodyParser from 'body-parser';
 import { handleLlmRoutes } from './routes/llm-routes.mjs';
 
-const port = 8080;
+const port = Number(process.env.PORT || 8080);
 
 const setCorsHeaders = (res) => {
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:5173');
+    res.setHeader('Access-Control-Allow-Origin', process.env.CORS_ORIGIN || 'http://localhost:5173');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 };

@@ -1,5 +1,16 @@
 import * as React from 'react';
 import { AreaChartCard, BarChartCard, PieChartCard, LineChartCard } from '@/components/charts';
+import { useLlmResponseContext } from '@/context/llm-response-context';
+import { isNonEmptyArray, transformLLMResponse } from '../../utils';
+import { ItransformData } from '@/context/types';
+
+// 1. The Registry (Catalog)
+const widgetRegistry = {
+    "BarChart": BarChartCard,
+    "LineChart": LineChartCard,
+    "PieChart": PieChartCard,
+    "AreaChart": AreaChartCard,
+};
 
 const sampleChartData = [
     { name: 'Jan', value: 40, amount: 24 },
@@ -15,9 +26,17 @@ const samplePieData = [
     { name: 'Product B', value: 300 },
     { name: 'Product C', value: 300 },
     { name: 'Product D', value: 200 },
-];
+]
 
 export function DashboardChartsPanel() {
+
+
+    const context = useLlmResponseContext();
+    const transformChartData: ItransformData[] = transformLLMResponse(context.llmResponse);
+    const parsedCsv: ItransformData[] = transformLLMResponse(context.parsedCsv);
+
+    console.log({ parsedCsv })
+    console.log('transformChartData', transformChartData);
     return (
         <div className="grid gap-6">
             <div className="col-span-full rounded-3xl border border-slate-800 bg-slate-950/90 p-6 text-slate-100 shadow-sm">
@@ -26,9 +45,37 @@ export function DashboardChartsPanel() {
                     Explore the latest revenue growth metrics across channels, and see how top-performing products contribute to overall business momentum.
                 </p>
             </div>
+            <>
+                {
+                    isNonEmptyArray(transformChartData) && (
+                        <div className="grid grid-cols-2 gap-6">
+                            {
+                                transformChartData.map((chart) => {
+                                    const { x_axis, value_axis, title } = chart;
+                                    if (chart.chart_type === 'PieChart') {
+                                        return <PieChartCard
+                                            title="Product Mix"
+                                            subtitle="Revenue share by product"
+                                            data={parsedCsv}
+                                            nameKey={x_axis}
+                                            valueKey={value_axis}
+                                        />
+                                    }
 
-            <div className="grid grid-cols-2 gap-6">
-                <BarChartCard
+                                    const ChartComponent = widgetRegistry[chart.chart_type as keyof typeof widgetRegistry];
+                                    if (ChartComponent) {
+                                        return <ChartComponent
+                                            title={title}
+                                            subtitle="New active users per month"
+                                            data={parsedCsv}
+                                            xKey={x_axis}
+                                            valueKey={value_axis}
+                                            color="#38bdf8"
+                                        />
+                                    }
+                                })
+                            }
+                            {/* <BarChartCard
                     title="Monthly Active Users"
                     subtitle="New active users per month"
                     data={sampleChartData}
@@ -61,8 +108,10 @@ export function DashboardChartsPanel() {
                     data={samplePieData}
                     nameKey="name"
                     valueKey="value"
-                />
-            </div>
+                /> */}
+                        </div>
+                    )}
+            </>
         </div>
     );
 }

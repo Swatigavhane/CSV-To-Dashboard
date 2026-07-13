@@ -2,7 +2,7 @@ import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
 import { FileInput } from '@/components/ui/file-input';
-import { cn } from '@/lib/utils';
+import { cn } from '@/utils';
 
 export interface ChatInputProps {
     placeholder?: string;

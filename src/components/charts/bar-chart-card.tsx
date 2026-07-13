@@ -1,10 +1,8 @@
-import * as React from 'react';
 import {
     ResponsiveContainer,
     BarChart,
     Bar,
     XAxis,
-    YAxis,
     Tooltip,
     CartesianGrid,
 } from 'recharts';
@@ -35,7 +33,6 @@ export function BarChartCard<T extends Record<string, any>>({
                 <BarChart data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
                     <CartesianGrid stroke="#334155" strokeDasharray="3 3" />
                     <XAxis dataKey={String(xKey)} stroke="#94a3b8" tick={{ fill: '#cbd5e1' }} />
-                    <YAxis stroke="#94a3b8" tick={{ fill: '#cbd5e1' }} />
                     <Tooltip wrapperStyle={{ borderRadius: 12, border: 'none' }} />
                     <Bar dataKey={String(valueKey)} fill={color} radius={[8, 8, 0, 0]} />
                 </BarChart>

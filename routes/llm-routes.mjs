@@ -17,8 +17,12 @@ export const handleLlmRoutes = (req, res) => {
 
         suggestChart(req.body)
             .then((suggestion) => {
+                const chartJson = suggestion?.json ?? null;
+                const query = suggestion?.query ?? null;
+
                 res.end(JSON.stringify({
-                    data: JSON.stringify(suggestion),
+                    data: chartJson,
+                    query,
                 }));
             })
             .catch((error) => {

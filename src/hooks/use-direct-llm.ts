@@ -1,15 +1,24 @@
 import { useCallback, useState } from 'react';
 import { LLM_ENDPOINT } from '@/constants';
+import { isNonEmptyObject } from '@/utils';
+import type { ItransformData } from '@/context/types';
+
+interface DirectLlmApiResponse {
+    data?: unknown;
+    query?: unknown;
+}
 
 export function useDirectLLM() {
-    const [response, setResponse] = useState('');
+    const [response, setResponse] = useState<ItransformData[]>([]);
+    const [AIQuery, setAIQuery] = useState('');
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
     const callDirectLLM = useCallback(async (prompt: string) => {
         setLoading(true);
         setError(null);
-        setResponse('');
+        setResponse([]);
+        setAIQuery('');
 
         try {
             const res = await fetch(LLM_ENDPOINT, {
@@ -23,12 +32,23 @@ export function useDirectLLM() {
                 throw new Error(`Request failed: ${res.status} ${text}`);
             }
 
-            const data = await res.json();
-            console.log('Direct LLM response data:', data);
-            const parsedReponse = data?.data ? JSON.parse(data.data) : null;
-            console.log('Parsed response:', parsedReponse);
-            setResponse(parsedReponse);
-            return parsedReponse;
+            const data: DirectLlmApiResponse = await res.json();
+            if (!isNonEmptyObject(data)) {
+                return setError(new Error('Invalid response from LLM endpoint'));
+            }
+
+            const { data: chartSuggestions, query } = data;
+
+            const chartPayload = Array.isArray(chartSuggestions) ? (chartSuggestions as ItransformData[]) : [];
+            const normalizedQuery = typeof query === 'string' ? query : '';
+
+            setResponse(chartPayload);
+            setAIQuery(normalizedQuery);
+
+            return {
+                data: chartPayload,
+                query: normalizedQuery,
+            };
         } catch (err) {
             const nextError = err instanceof Error ? err : new Error(String(err));
             setError(nextError);
@@ -40,6 +60,7 @@ export function useDirectLLM() {
 
     return {
         response,
+        AIQuery,
         loading,
         error,
         callDirectLLM,

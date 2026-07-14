@@ -51,11 +51,11 @@ export function DashboardChartsPanel() {
                         <div className="grid grid-cols-2 gap-6">
                             {
                                 transformChartData.map((chart) => {
-                                    const { x_axis, value_axis, title } = chart;
+                                    const { x_axis, value_axis, title , subtitle } = chart;
                                     if (chart.chart_type === 'PieChart') {
                                         return <PieChartCard
-                                            title="Product Mix"
-                                            subtitle="Revenue share by product"
+                                            title={title}
+                                            subtitle={subtitle}
                                             data={parsedCsv}
                                             nameKey={x_axis}
                                             valueKey={value_axis}
@@ -66,7 +66,7 @@ export function DashboardChartsPanel() {
                                     if (ChartComponent) {
                                         return <ChartComponent
                                             title={title}
-                                            subtitle="New active users per month"
+                                            subtitle={subtitle}
                                             data={parsedCsv}
                                             xKey={x_axis}
                                             valueKey={value_axis}

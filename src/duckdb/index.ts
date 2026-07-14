@@ -3,6 +3,15 @@ import duckdbMvpWasm from '@duckdb/duckdb-wasm/dist/duckdb-mvp.wasm?url';
 import duckdbEhWasm from '@duckdb/duckdb-wasm/dist/duckdb-eh.wasm?url';
 import duckdbMvpWorker from '@duckdb/duckdb-wasm/dist/duckdb-browser-mvp.worker.js?url';
 import duckdbEhWorker from '@duckdb/duckdb-wasm/dist/duckdb-browser-eh.worker.js?url';
+import {
+    buildDuckDbCreateTableSql,
+    coerceDuckDbRows,
+    extractAggregateAliasMap,
+    normalizeTableName,
+    quoteIdentifier,
+    quoteSqlString,
+    type QueryRow,
+} from './utils';
 
 const DUCKDB_BUNDLES: duckdb.DuckDBBundles = {
     mvp: {
@@ -15,25 +24,7 @@ const DUCKDB_BUNDLES: duckdb.DuckDBBundles = {
     },
 };
 
-type QueryRow = Record<string, unknown>;
-
 let dbInitPromise: Promise<duckdb.AsyncDuckDB> | null = null;
-
-function quoteIdentifier(name: string) {
-    return `"${name.replace(/"/g, '""')}"`;
-}
-
-function quoteSqlString(value: string) {
-    return `'${value.replace(/'/g, "''")}'`;
-}
-
-function normalizeTableName(tableName: string) {
-    const trimmed = tableName.trim();
-    if (!trimmed) {
-        throw new Error('Table name cannot be empty');
-    }
-    return trimmed;
-}
 
 async function getDuckDbInstance() {
     if (!dbInitPromise) {
@@ -48,6 +39,29 @@ async function getDuckDbInstance() {
     }
 
     return dbInitPromise;
+}
+
+function normalizeQueryResultAliases(rows: QueryRow[], query: string) {
+    const aliasMap = extractAggregateAliasMap(query);
+    if (!Object.keys(aliasMap).length) {
+        return rows;
+    }
+
+    const caseInsensitiveAliasMap = Object.entries(aliasMap).reduce((acc, [alias, sourceColumn]) => {
+        acc[alias.toLowerCase()] = sourceColumn;
+        return acc;
+    }, {} as Record<string, string>);
+
+    return rows.map((row) => {
+        const normalizedRow: QueryRow = {};
+
+        for (const [key, value] of Object.entries(row)) {
+            const nextKey = caseInsensitiveAliasMap[key.toLowerCase()] ?? key;
+            normalizedRow[nextKey] = value;
+        }
+
+        return normalizedRow;
+    });
 }
 
 export async function registerCsvFileAsTable(file: File, tableName = 'uploaded_csv') {
@@ -71,38 +85,37 @@ export async function registerCsvFileAsTable(file: File, tableName = 'uploaded_c
     }
 }
 
-export async function registerJsonRowsAsTable(
+export async function executeDuckDbQuery(
     rows: Record<string, unknown>[],
     tableName = 'uploaded_csv',
+    query = ""
 ) {
-    const db = await getDuckDbInstance();
-    const conn = await db.connect();
     const normalizedTableName = normalizeTableName(tableName);
-    const virtualFileName = `${normalizedTableName}-${Date.now()}.json`;
 
-    try {
-        const jsonText = JSON.stringify(rows ?? []);
-        const jsonBytes = new TextEncoder().encode(jsonText);
-        await db.registerFileBuffer(virtualFileName, jsonBytes);
-
-        await conn.query(
-            `CREATE OR REPLACE TABLE ${quoteIdentifier(normalizedTableName)} AS
-             SELECT *
-             FROM read_json_auto(${quoteSqlString(virtualFileName)});`,
-        );
-    } finally {
-        await conn.close();
+    if (query.trim() === "") {
+        query = `SELECT * FROM ${quoteIdentifier(normalizedTableName)}`;
     }
-}
 
-export async function executeDuckDbQuery(query: string): Promise<QueryRow[]> {
     const db = await getDuckDbInstance();
     const conn = await db.connect();
 
     try {
-        const result = await conn.query(query);
-        return result.toArray().map((row) => row.toJSON() as QueryRow);
+        const normalizedRows = coerceDuckDbRows(rows);
+        const createTableSql = buildDuckDbCreateTableSql(normalizedRows, normalizedTableName);
+        await conn.query(createTableSql);
+
+        const updatedQuery = query.replace(/\b(csv_data|your_table_name|table_name)\b/gi, quoteIdentifier(normalizedTableName));
+        console.log('Executing DuckDB query:', updatedQuery);
+        const queryResult = await conn.query(updatedQuery);
+
+        const queryResultArr = queryResult.toArray().map((row) => row.toJSON() as QueryRow);
+        const aliasNormalizedRows = normalizeQueryResultAliases(queryResultArr, updatedQuery);
+        return aliasNormalizedRows;
+    } catch (error) {
+        console.error('Error executing DuckDB query:', error);
+        throw error;
     } finally {
         await conn.close();
     }
 }
+

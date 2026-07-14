@@ -4,7 +4,7 @@ import { DashboardLayout } from '@/components/ui/dashboard-layout';
 import { DashboardChartsPanel } from '@/components/ui/dashboard-charts-panel';
 import { createSchemaFromJson } from '@/lib/schema';
 import { parseCsvFile } from '@/lib/csv';
-import { executeDuckDbQuery, registerJsonRowsAsTable } from '@/duckdb';
+import { executeDuckDbQuery } from '@/duckdb';
 import { isCsvFile, isNonEmptyArray } from '@/utils';
 import { useDirectLLM } from '@/hooks/use-direct-llm';
 import { LlmResponseProvider } from '@/context/llm-response-context';
@@ -16,8 +16,7 @@ export default function App() {
     const [queryResponse, setQueryResponse] = useState<Record<string, unknown>[]>([]);
 
     const queryUploadedFileAsJson = async (rows: Record<string, unknown>[], query: string) => {
-        await registerJsonRowsAsTable(rows, DUCK_DB_TABLE_NAME);
-        return executeDuckDbQuery(query);
+        return executeDuckDbQuery(rows, DUCK_DB_TABLE_NAME, query);
     };
 
     useEffect(() => {
@@ -27,8 +26,7 @@ export default function App() {
         }
 
         const runQuery = async () => {
-            const updatedQuery = AIQuery.replace(/your_table_name/g, DUCK_DB_TABLE_NAME);
-            const previewRows = await queryUploadedFileAsJson(parsedCsv as Record<string, unknown>[], updatedQuery);
+            const previewRows = await queryUploadedFileAsJson(parsedCsv as Record<string, unknown>[], AIQuery);
             setQueryResponse(previewRows);
             console.log('DuckDB table uploaded_csv initialized. Preview rows:', previewRows);
         };

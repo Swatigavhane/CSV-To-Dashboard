@@ -7,12 +7,12 @@ export interface ItransformData {
     [key: string]: any; // Allow other properties
 }
 export interface LlmResponseContextValue {
-    llmResponse: ItransformData[];
+    chartResponses: ItransformData[];
     parsedCsv: any[];
 }
 
 export interface IContextProviderProps {
     children: ReactNode;
-    llmResponse: ItransformData[];
+    chartResponses: ItransformData[];
     parsedCsv: any[]; // Adjust the type based on your CSV data structure
 }

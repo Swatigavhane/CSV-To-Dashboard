@@ -5,34 +5,79 @@ import { DashboardChartsPanel } from '@/components/ui/dashboard-charts-panel';
 import { createSchemaFromJson } from '@/lib/schema';
 import { parseCsvFile } from '@/lib/csv';
 import { executeDuckDbQuery } from '@/duckdb';
-import { isCsvFile, isNonEmptyArray } from '@/utils';
+import { formatTimestampToDDMMYYYY, isCsvFile, isNonEmptyArray } from '@/utils';
 import { useDirectLLM } from '@/hooks/use-direct-llm';
 import { LlmResponseProvider } from '@/context/llm-response-context';
 import { DUCK_DB_TABLE_NAME } from '../src/constants';
 
 export default function App() {
-    const { response: llmResponse, AIQuery, loading: llmLoading, error: llmError, callDirectLLM } = useDirectLLM();
+    const { response: llmResponse, loading: llmLoading, error: llmError, callDirectLLM } = useDirectLLM();
     const [parsedCsv, setParsedCsv] = useState<any[]>([]);
-    const [queryResponse, setQueryResponse] = useState<Record<string, unknown>[]>([]);
+    const [chartResponses, setChartResponses] = useState<any[]>([]);
 
     const queryUploadedFileAsJson = async (rows: Record<string, unknown>[], query: string) => {
         return executeDuckDbQuery(rows, DUCK_DB_TABLE_NAME, query);
     };
 
+    const isLikelyTimestamp = (value: unknown): value is number | string => {
+        if (typeof value === 'number' && Number.isFinite(value)) {
+            return Math.abs(value) >= 1e9;
+        }
+
+        if (typeof value === 'string') {
+            const trimmed = value.trim();
+            return /^\d{10}(?:\d{3})?$/.test(trimmed);
+        }
+
+        return false;
+    };
+
     useEffect(() => {
-        if (!AIQuery || !parsedCsv.length) {
-            setQueryResponse([]);
+        if (!isNonEmptyArray(llmResponse) || !parsedCsv.length) {
+            setChartResponses([]);
             return;
         }
 
-        const runQuery = async () => {
-            const previewRows = await queryUploadedFileAsJson(parsedCsv as Record<string, unknown>[], AIQuery);
-            setQueryResponse(previewRows);
-            console.log('DuckDB table uploaded_csv initialized. Preview rows:', previewRows);
+        const runQueries = async () => {
+            const nextChartResponses = await Promise.all(
+                llmResponse.map(async (chart) => {
+                    const chartQuery = typeof chart?.query === 'string' ? chart.query.trim() : '';
+
+                    if (!chartQuery) {
+                        return chart;
+                    }
+
+                    try {
+                        const previewRows = await queryUploadedFileAsJson(parsedCsv as Record<string, unknown>[], chartQuery);
+                        const formattedPreviewRows = previewRows.map((row) => {
+                            return Object.fromEntries(
+                                Object.entries(row).map(([key, value]) => {
+                                    if (isLikelyTimestamp(value)) {
+                                        return [key, formatTimestampToDDMMYYYY(value)];
+                                    }
+
+                                    return [key, value];
+                                }),
+                            );
+                        });
+
+                        return {
+                            ...chart,
+                            query_data: formattedPreviewRows,
+                        };
+                    } catch (error) {
+                        console.error('Query execution failed for chart:', chart?.title, error);
+                        return chart;
+                    }
+                }),
+            );
+
+            setChartResponses(nextChartResponses);
+            console.log('DuckDB queries completed for charts:', nextChartResponses);
         };
 
-        void runQuery();
-    }, [AIQuery, parsedCsv]);
+        void runQueries();
+    }, [llmResponse, parsedCsv]);
 
     const handleSubmit = async ({ text, file }: { text: string; file?: File; }) => {
         try {
@@ -61,12 +106,12 @@ export default function App() {
         }
     };
 
-
+    console.log({ chartResponses });
     return (
-        <LlmResponseProvider llmResponse={llmResponse} parsedCsv={(queryResponse.length ? queryResponse : parsedCsv) as any[]} >
+        <LlmResponseProvider chartResponses={(chartResponses.length ? chartResponses : llmResponse) as any[]} parsedCsv={parsedCsv as any[]} >
             <main className="min-h-screen bg-slate-950 px-6 py-16 text-slate-100">
                 <div className="mx-auto max-w-8xl">
-                    {isNonEmptyArray(llmResponse) ? (
+                    {isNonEmptyArray(chartResponses) ? (
                         <DashboardLayout
                             left={<DashboardChartsPanel />}
                             right={
@@ -90,7 +135,7 @@ export default function App() {
                                 {llmLoading ? (
                                     <div className="text-xs text-slate-400">Thinking...</div>
                                 ) : llmError ? (
-                                    <div className="text-red-400">{llmError}</div>
+                                    <div className="text-red-400">{llmError instanceof Error ? llmError.message : String(llmError)}</div>
                                 ) : null}
                             </div>
                         </div>

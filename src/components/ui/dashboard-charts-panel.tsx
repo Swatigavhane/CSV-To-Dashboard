@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { AreaChartCard, BarChartCard, PieChartCard, LineChartCard } from '@/components/charts';
 import { useLlmResponseContext } from '@/context/llm-response-context';
 import { isNonEmptyArray, transformLLMResponse } from '../../utils';
@@ -12,27 +11,9 @@ const widgetRegistry = {
     "AreaChart": AreaChartCard,
 };
 
-const sampleChartData = [
-    { name: 'Jan', value: 40, amount: 24 },
-    { name: 'Feb', value: 55, amount: 32 },
-    { name: 'Mar', value: 75, amount: 45 },
-    { name: 'Apr', value: 60, amount: 38 },
-    { name: 'May', value: 90, amount: 55 },
-    { name: 'Jun', value: 80, amount: 48 },
-];
-
-const samplePieData = [
-    { name: 'Product A', value: 400 },
-    { name: 'Product B', value: 300 },
-    { name: 'Product C', value: 300 },
-    { name: 'Product D', value: 200 },
-]
-
 export function DashboardChartsPanel() {
-
-
     const context = useLlmResponseContext();
-    const transformChartData: ItransformData[] = transformLLMResponse(context.llmResponse);
+    const transformChartData: ItransformData[] = transformLLMResponse(context.chartResponses);
     const parsedCsv: ItransformData[] = transformLLMResponse(context.parsedCsv);
 
     console.log({ parsedCsv })
@@ -51,12 +32,13 @@ export function DashboardChartsPanel() {
                         <div className="grid grid-cols-2 gap-6">
                             {
                                 transformChartData.map((chart) => {
-                                    const { x_axis, value_axis, title , subtitle } = chart;
+                                    const { x_axis, value_axis, title, subtitle } = chart;
+                                    const chartData = isNonEmptyArray(chart.query_data) ? chart.query_data : parsedCsv;
                                     if (chart.chart_type === 'PieChart') {
                                         return <PieChartCard
                                             title={title}
                                             subtitle={subtitle}
-                                            data={parsedCsv}
+                                            data={chartData}
                                             nameKey={x_axis}
                                             valueKey={value_axis}
                                         />
@@ -67,7 +49,7 @@ export function DashboardChartsPanel() {
                                         return <ChartComponent
                                             title={title}
                                             subtitle={subtitle}
-                                            data={parsedCsv}
+                                            data={chartData}
                                             xKey={x_axis}
                                             valueKey={value_axis}
                                             color="#38bdf8"
@@ -75,40 +57,6 @@ export function DashboardChartsPanel() {
                                     }
                                 })
                             }
-                            {/* <BarChartCard
-                    title="Monthly Active Users"
-                    subtitle="New active users per month"
-                    data={sampleChartData}
-                    xKey="name"
-                    valueKey="value"
-                    color="#38bdf8"
-                />
-
-                <LineChartCard
-                    title="Traffic"
-                    subtitle="Site visits over time"
-                    data={sampleChartData}
-                    xKey="name"
-                    valueKey="value"
-                    color="#22c55e"
-                />
-
-                <AreaChartCard
-                    title="Recurring Revenue"
-                    subtitle="Revenue trend over the first half of the year"
-                    data={sampleChartData}
-                    xKey="name"
-                    valueKey="amount"
-                    color="#f97316"
-                />
-
-                <PieChartCard
-                    title="Product Mix"
-                    subtitle="Revenue share by product"
-                    data={samplePieData}
-                    nameKey="name"
-                    valueKey="value"
-                /> */}
                         </div>
                     )}
             </>

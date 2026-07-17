@@ -1,11 +1,11 @@
-import { createContext, useContext  } from 'react';
+import { createContext, useContext } from 'react';
 import { IContextProviderProps, LlmResponseContextValue } from './types';
 
 const LlmResponseContext = createContext<LlmResponseContextValue | undefined>(undefined);
 
-export function LlmResponseProvider({ children, llmResponse , parsedCsv }: IContextProviderProps) {
+export function LlmResponseProvider({ children, chartResponses, parsedCsv }: IContextProviderProps) {
     return (
-        <LlmResponseContext.Provider value={{ llmResponse , parsedCsv }}>
+        <LlmResponseContext.Provider value={{ chartResponses, parsedCsv }}>
             {children}
         </LlmResponseContext.Provider>
     );

@@ -70,3 +70,31 @@ export function transformLLMResponse(data: ItransformData[]) {
   return data;
 }
 
+export function formatTimestampToDDMMYYYY(value: number | string | Date): string {
+  let date: Date;
+
+  if (value instanceof Date) {
+    date = value;
+  } else {
+    const numericValue = typeof value === 'string' ? Number(value) : value;
+
+    if (!Number.isFinite(numericValue)) {
+      return '';
+    }
+
+    // Treat short numeric timestamps as seconds and convert to milliseconds.
+    const timestamp = Math.abs(numericValue) < 1e12 ? numericValue * 1000 : numericValue;
+    date = new Date(timestamp);
+  }
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+
+  return `${day}-${month}-${year}`;
+}
+

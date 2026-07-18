@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ChatInput } from '@/components/chat-input/chat-input';
+import { Button } from '@/components/button/button';
 import { DashboardLayout } from '@/components/dashboard-layout/dashboard-layout';
 import { DashboardChartsPanel } from '@/components/dashboard-charts-panel/dashboard-charts-panel';
 import { LlmResponseStatus } from '@/components/llm-response-status/llm-response-status';
@@ -13,7 +14,7 @@ import { LlmResponseProvider } from '@/context/llm-response-context';
 import { DUCK_DB_TABLE_NAME } from '../src/constants';
 
 export default function App() {
-    const { response: llmResponse, loading: llmLoading, error: llmError, callDirectLLM } = useDirectLLM();
+    const { response: llmResponse, loading: llmLoading, error: llmError, callDirectLLM, resetDirectLLM } = useDirectLLM();
     const [parsedCsv, setParsedCsv] = useState<any[]>([]);
     const [chartResponses, setChartResponses] = useState<any[]>([]);
 
@@ -61,13 +62,28 @@ export default function App() {
             console.error('Submit error:', error);
         }
     };
+
+    const handleTryAnotherCsv = () => {
+        setParsedCsv([]);
+        setChartResponses([]);
+        resetDirectLLM();
+    };
+
     return (
         <LlmResponseProvider chartResponses={(chartResponses.length ? chartResponses : llmResponse) as any[]} parsedCsv={parsedCsv as any[]} >
             <main className="min-h-screen bg-slate-950 px-6 py-16 text-slate-100">
                 <div className="mx-auto max-w-8xl">
-                    {isNonEmptyArray(chartResponses) ? (<DashboardLayout>
-                        <DashboardChartsPanel />
-                    </DashboardLayout>
+                    {isNonEmptyArray(chartResponses) ? (
+                        <>
+                            <div className="mb-4 flex justify-end">
+                                <Button type="button" variant="outline" onClick={handleTryAnotherCsv}>
+                                    Try Another CSV
+                                </Button>
+                            </div>
+                            <DashboardLayout>
+                                <DashboardChartsPanel />
+                            </DashboardLayout>
+                        </>
                     ) : (
                         <div className="mx-auto max-w-3xl">
                             <ChatInput

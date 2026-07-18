@@ -15,7 +15,6 @@ export function DashboardChartsPanel() {
     const transformChartData: ItransformData[] = transformLLMResponse(context.chartResponses);
     const parsedCsv: ItransformData[] = transformLLMResponse(context.parsedCsv);
 
-    console.log({ parsedCsv });
     console.log('transformChartData', transformChartData);
     return (
         <div className="grid gap-6">

@@ -13,11 +13,11 @@ export interface ChatInputProps {
 }
 
 export function ChatInput({ placeholder = 'Type your message...', onSubmit, className }: ChatInputProps) {
-    const [text, setText] = React.useState('');
+    const [promptText, setPromptText] = React.useState('');
     const [file, setFile] = React.useState<File | null>(null);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-    const canSend = !!file || text.trim().length >= 20;
+    const canSend = Boolean(file && promptText.trim().length > 0);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -25,8 +25,8 @@ export function ChatInput({ placeholder = 'Type your message...', onSubmit, clas
             return;
         }
 
-        onSubmit({ text: text.trim(), file: file ?? undefined });
-        setText('');
+        onSubmit({ text: promptText.trim(), file: file ?? undefined });
+        setPromptText('');
         setFile(null);
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
@@ -68,8 +68,8 @@ export function ChatInput({ placeholder = 'Type your message...', onSubmit, clas
         >
             <div className="min-h-[110px] bg-slate-900/80">
                 <textarea
-                    value={text}
-                    onChange={(event) => setText(event.target.value)}
+                    value={promptText}
+                    onChange={(event) => setPromptText(event.target.value)}
                     placeholder={placeholder}
                     className="min-h-[110px] w-full resize-none border-0 bg-transparent px-5 py-4 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:ring-0"
                 />

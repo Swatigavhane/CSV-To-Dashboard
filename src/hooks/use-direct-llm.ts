@@ -58,11 +58,19 @@ export function useDirectLLM() {
         }
     }, []);
 
+    const resetDirectLLM = useCallback(() => {
+        setResponse([]);
+        setAIQuery('');
+        setError(null);
+        setLoading(false);
+    }, []);
+
     return {
         response,
         AIQuery,
         loading,
         error,
         callDirectLLM,
+        resetDirectLLM,
     };
 }

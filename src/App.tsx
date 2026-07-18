@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react';
-import { ChatInput } from '@/components/ui/chat-input';
-import { DashboardLayout } from '@/components/ui/dashboard-layout';
-import { DashboardChartsPanel } from '@/components/ui/dashboard-charts-panel';
+import { ChatInput } from '@/components/chat-input/chat-input';
+import { DashboardLayout } from '@/components/dashboard-layout/dashboard-layout';
+import { DashboardChartsPanel } from '@/components/dashboard-charts-panel/dashboard-charts-panel';
 import { createSchemaFromJson } from '@/lib/schema';
 import { parseCsvFile } from '@/lib/csv';
 import { executeDuckDbQuery } from '@/duckdb';
-import { formatTimestampToDDMMYYYY, isCsvFile, isNonEmptyArray } from '@/utils';
+import { formatTimestampToDDMMYYYY, isCsvFile, isLikelyTimestamp, isNonEmptyArray } from '@/utils';
 import { useDirectLLM } from '@/hooks/use-direct-llm';
 import { LlmResponseProvider } from '@/context/llm-response-context';
 import { DUCK_DB_TABLE_NAME } from '../src/constants';
@@ -17,19 +17,6 @@ export default function App() {
 
     const queryUploadedFileAsJson = async (rows: Record<string, unknown>[], query: string) => {
         return executeDuckDbQuery(rows, DUCK_DB_TABLE_NAME, query);
-    };
-
-    const isLikelyTimestamp = (value: unknown): value is number | string => {
-        if (typeof value === 'number' && Number.isFinite(value)) {
-            return Math.abs(value) >= 1e9;
-        }
-
-        if (typeof value === 'string') {
-            const trimmed = value.trim();
-            return /^\d{10}(?:\d{3})?$/.test(trimmed);
-        }
-
-        return false;
     };
 
     useEffect(() => {
@@ -111,19 +98,9 @@ export default function App() {
         <LlmResponseProvider chartResponses={(chartResponses.length ? chartResponses : llmResponse) as any[]} parsedCsv={parsedCsv as any[]} >
             <main className="min-h-screen bg-slate-950 px-6 py-16 text-slate-100">
                 <div className="mx-auto max-w-8xl">
-                    {isNonEmptyArray(chartResponses) ? (
-                        <DashboardLayout
-                            left={<DashboardChartsPanel />}
-                            right={
-                                <ChatInput
-                                    placeholder="Ask anything or upload a file..."
-                                    onSubmit={handleSubmit}
-                                />
-                            }
-                            initialLeftWidth={40}
-                            minLeft={30}
-                            minRight={30}
-                        />
+                    {isNonEmptyArray(chartResponses) ? (<DashboardLayout>
+                        <DashboardChartsPanel />
+                    </DashboardLayout>
                     ) : (
                         <div className="mx-auto max-w-3xl">
                             <ChatInput

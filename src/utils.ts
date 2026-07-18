@@ -98,3 +98,16 @@ export function formatTimestampToDDMMYYYY(value: number | string | Date): string
   return `${day}-${month}-${year}`;
 }
 
+export function isLikelyTimestamp(value: unknown): value is number | string {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return Math.abs(value) >= 1e9;
+  }
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    return /^\d{10}(?:\d{3})?$/.test(trimmed);
+  }
+
+  return false;
+}
+

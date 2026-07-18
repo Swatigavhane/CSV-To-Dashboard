@@ -7,7 +7,7 @@ export interface DashboardLeftPanelProps {
 export function DashboardLeftPanel({
     messages = [
         'Hello! How can I help you today?',
-        'Upload a CSV and I’ll help build a dashboard.',
+        'Upload a CSV and I\'ll help build a dashboard.',
     ],
 }: DashboardLeftPanelProps) {
     return (

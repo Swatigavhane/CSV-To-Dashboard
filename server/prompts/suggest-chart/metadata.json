@@ -1,0 +1,7 @@
+{
+  "name": "suggest-chart-system",
+  "version": "1.0.0",
+  "template": "system.v1.txt",
+  "variables": ["chart_types", "table_name"],
+  "description": "System prompt template for chart suggestion generation."
+}

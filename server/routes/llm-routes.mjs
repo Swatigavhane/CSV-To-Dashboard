@@ -1,4 +1,4 @@
-import { suggestChart } from './suggest_chart.mjs';
+import { suggestChart } from '../services/suggest_chart.mjs';
 
 export const handleLlmRoutes = (req, res) => {
     console.log('Handling LLM route:', req.body, req.url, req.method);

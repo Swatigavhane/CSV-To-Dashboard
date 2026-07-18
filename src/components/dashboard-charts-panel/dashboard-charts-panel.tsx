@@ -20,7 +20,7 @@ export function DashboardChartsPanel() {
     return (
         <div className="grid gap-6">
             <div className="col-span-full rounded-3xl border border-slate-800 bg-slate-950/90 p-6 text-slate-100 shadow-sm">
-                <h2 className="text-2xl font-semibold">Revenue growth and channel insights</h2>
+                <h2 className="text-2xl font-semibold">Your Dashboard is ready!</h2>
                 <p className="mt-2 max-w-2xl text-sm text-slate-400">
                     Explore the latest revenue growth metrics across channels, and see how top-performing products contribute to overall business momentum.
                 </p>

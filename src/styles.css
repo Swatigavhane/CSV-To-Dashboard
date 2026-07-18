@@ -18,3 +18,27 @@ body {
 * {
   box-sizing: border-box;
 }
+
+@keyframes loadingStatusSlideFade {
+  0% {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  20% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  80% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  100% {
+    opacity: 0.2;
+    transform: translateY(-4px);
+  }
+}
+
+.loading-status-message {
+  display: inline-block;
+  animation: loadingStatusSlideFade 1.35s ease;
+}

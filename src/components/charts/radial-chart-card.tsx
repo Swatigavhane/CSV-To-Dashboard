@@ -3,20 +3,20 @@ import { ResponsiveContainer, RadialBarChart, RadialBar, Tooltip, Legend } from 
 
 import { ChartCard, ChartCardProps } from '@/components/charts/chart-card';
 
-export type RadialChartCardProps<T> = ChartCardProps & {
-    data: T[];
-    nameKey: keyof T | string;
-    valueKey: keyof T | string;
+export type RadialChartCardProps = ChartCardProps & {
+    data: Record<string, any>[];
+    nameKey: string;
+    valueKey: string;
 };
 
-export function RadialChartCard<T extends Record<string, any>>({
+export function RadialChartCard({
     data,
     nameKey,
     valueKey,
     title,
     subtitle,
     className,
-}: RadialChartCardProps<T>) {
+}: RadialChartCardProps) {
     return (
         <ChartCard title={title} subtitle={subtitle} className={className}>
             <ResponsiveContainer width="100%" height="100%">

@@ -11,14 +11,14 @@ import { ChartCard, ChartCardProps } from '@/components/charts/chart-card';
 
 const defaultColor = '#38bdf8';
 
-export type BarChartCardProps<T> = ChartCardProps & {
-    data: T[];
-    xKey: keyof T | string;
-    valueKey: keyof T | string;
+export type BarChartCardProps = ChartCardProps & {
+    data: Record<string, any>[];
+    xKey: string;
+    valueKey: string;
     color?: string;
 };
 
-export function BarChartCard<T extends Record<string, any>>({
+export function BarChartCard({
     data,
     xKey,
     valueKey,
@@ -26,7 +26,7 @@ export function BarChartCard<T extends Record<string, any>>({
     subtitle,
     color = defaultColor,
     className,
-}: BarChartCardProps<T>) {
+}: BarChartCardProps) {
     return (
         <ChartCard title={title} subtitle={subtitle} className={className}>
             <ResponsiveContainer width="100%" height="100%">

@@ -17,7 +17,7 @@ export function DashboardChartsPanel() {
 
     console.log('transformChartData', transformChartData);
     return (
-        <div className="grid gap-6">
+        <div className="grid gap-4">
             <div className="col-span-full rounded-3xl border border-slate-800 bg-slate-950/90 p-6 text-slate-100 shadow-sm">
                 <h2 className="text-2xl font-semibold">Your Dashboard is ready!</h2>
                 <p className="mt-2 max-w-2xl text-sm text-slate-400">
@@ -26,7 +26,7 @@ export function DashboardChartsPanel() {
             </div>
             <>
                 {isNonEmptyArray(transformChartData) && (
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-2 gap-4">
                         {transformChartData.map((chart) => {
                             const { x_axis, value_axis, title, subtitle } = chart;
                             const chartData = isNonEmptyArray(chart.query_data) ? chart.query_data : parsedCsv;

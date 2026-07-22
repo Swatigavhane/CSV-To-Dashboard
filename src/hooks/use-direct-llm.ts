@@ -2,11 +2,8 @@ import { useCallback, useState } from 'react';
 import { LLM_ENDPOINT } from '@/constants';
 import { isNonEmptyObject } from '@/utils';
 import type { ItransformData } from '@/context/types';
-
-interface DirectLlmApiResponse {
-    data?: unknown;
-    query?: unknown;
-}
+import { executeWithRetry } from './llm-utils';
+import type { DirectLlmApiResponse } from './types';
 
 export function useDirectLLM() {
     const [response, setResponse] = useState<ItransformData[]>([]);
@@ -21,16 +18,20 @@ export function useDirectLLM() {
         setAIQuery('');
 
         try {
-            const res = await fetch(LLM_ENDPOINT, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt }),
-            });
+            const res = await executeWithRetry(async () => {
+                const response = await fetch(LLM_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt }),
+                });
 
-            if (!res.ok) {
-                const text = await res.text();
-                throw new Error(`Request failed: ${res.status} ${text}`);
-            }
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(`Request failed: ${response.status} ${text}`);
+                }
+
+                return response;
+            }, { maxRetries: 2, delayMs: 300 });
 
             const data: DirectLlmApiResponse = await res.json();
             if (!isNonEmptyObject(data)) {

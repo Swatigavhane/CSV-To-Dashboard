@@ -6,14 +6,13 @@ export interface LlmResponseStatusProps {
 }
 
 export function LlmResponseStatus({ llmLoading, llmError }: LlmResponseStatusProps) {
-    return (
+    return llmLoading || llmError ? (
         <div className="mt-4 rounded-md bg-slate-900 p-3 text-sm">
-            <div className="font-medium">LLM Response</div>
             {llmLoading ? (
                 <LoadingProgress />
             ) : llmError ? (
                 <div className="text-red-400">{llmError instanceof Error ? llmError.message : String(llmError)}</div>
             ) : null}
         </div>
-    );
+    ) : null;
 }

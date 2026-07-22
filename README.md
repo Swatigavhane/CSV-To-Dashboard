@@ -16,7 +16,7 @@ Convert a CSV file into charts using AI-generated chart configs and DuckDB queri
 npm install
 ```
 
-2. Create a `.env` file:
+2. Create or update the development env file at `config/env/.env.development`:
 
 ```env
 HUGGINGFACE_TOKEN=your_token_here
@@ -46,6 +46,30 @@ npm run server
 npm run build
 npm run lint
 ```
+
+## Screenshots
+
+Here are the main UI screens of the project:
+
+![Screenshot 1](./public/images/Screenshot%201.png)
+
+*Upload and analyze a CSV file.*
+
+![Screenshot 2](./public/images/Screenshot%202.png)
+
+*View AI-generated chart suggestions.*
+
+![Screenshot 3](./public/images/Screenshot%203.png)
+
+*Explore chart results in the dashboard.*
+
+![Screenshot 4](./public/images/Screenshot%204.png)
+
+*See the generated dashboard layout.*
+
+![Screenshot 5](./public/images/Screenshot%205.png)
+
+*Interactive visualization experience.*
 
 ## Response Shape (Simplified)
 

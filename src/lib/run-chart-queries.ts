@@ -8,6 +8,18 @@ export type RunChartQueriesParams = {
     queryUploadedFileAsJson: QueryFn;
 };
 
+function normalizeDuckDbValue(value: unknown): unknown {
+    if (typeof value !== 'bigint') {
+        return value;
+    }
+
+    if (value > BigInt(Number.MAX_SAFE_INTEGER) || value < BigInt(Number.MIN_SAFE_INTEGER)) {
+        return value.toString();
+    }
+
+    return Number(value);
+}
+
 export async function runChartQueries({
     llmResponse,
     parsedCsv,
@@ -26,11 +38,13 @@ export async function runChartQueries({
                 const formattedPreviewRows = previewRows.map((row) => {
                     return Object.fromEntries(
                         Object.entries(row).map(([key, value]) => {
-                            if (isLikelyTimestamp(value)) {
-                                return [key, formatTimestampToDDMMYYYY(value)];
+                            const normalizedValue = normalizeDuckDbValue(value);
+
+                            if (isLikelyTimestamp(normalizedValue)) {
+                                return [key, formatTimestampToDDMMYYYY(normalizedValue)];
                             }
 
-                            return [key, value];
+                            return [key, normalizedValue];
                         }),
                     );
                 });

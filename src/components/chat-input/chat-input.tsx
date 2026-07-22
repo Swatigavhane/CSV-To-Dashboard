@@ -17,7 +17,7 @@ export function ChatInput({ placeholder = 'Type your message...', onSubmit, clas
     const [file, setFile] = React.useState<File | null>(null);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
-    const canSend = Boolean(file && promptText.trim().length > 0);
+    const canSend = Boolean(file);
 
     const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();

@@ -13,14 +13,14 @@ import { ChartCard, ChartCardProps } from '@/components/charts/chart-card';
 
 const defaultColor = '#f97316';
 
-export type AreaChartCardProps<T> = ChartCardProps & {
-    data: T[];
-    xKey: keyof T | string;
-    valueKey: keyof T | string;
+export type AreaChartCardProps = ChartCardProps & {
+    data: Record<string, any>[];
+    xKey: string;
+    valueKey: string;
     color?: string;
 };
 
-export function AreaChartCard<T extends Record<string, any>>({
+export function AreaChartCard({
     data,
     xKey,
     valueKey,
@@ -28,7 +28,7 @@ export function AreaChartCard<T extends Record<string, any>>({
     subtitle,
     color = defaultColor,
     className,
-}: AreaChartCardProps<T>) {
+}: AreaChartCardProps) {
     return (
         <ChartCard title={title} subtitle={subtitle} className={className}>
             <ResponsiveContainer width="100%" height="100%">

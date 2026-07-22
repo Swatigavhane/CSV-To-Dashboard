@@ -2,7 +2,7 @@ import Papa from 'papaparse';
 
 export async function parseCsvFile(file: File): Promise<Record<string, any>[]> {
   return new Promise((resolve, reject) => {
-    Papa.parse<Record<string, any>>(file, {
+    Papa.parse(file, {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {

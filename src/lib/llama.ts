@@ -1,4 +1,4 @@
-import type { LLMModelFunction } from '@/hooks/use-llm';
+import type { LLMModelFunction } from '@/hooks/types';
 
 export interface LlamaOptions {
   max_tokens?: number;
@@ -23,7 +23,7 @@ function isConnectionError(error: unknown) {
 export function llamaTGIModel(
   modelName: string,
   baseUrl = 'http://localhost:8080',
-): LLMModelFunction<string, LlamaOptions> {
+): LLMModelFunction {
   return async (input: string, options?: LlamaOptions & { signal?: AbortSignal }) => {
     const body = {
       inputs: input,
@@ -66,7 +66,7 @@ export function llamaTGIModel(
 // Simple adapter for text-generation-webui (if you run that server)
 export function llamaWebUIModel(
   baseUrl = 'http://127.0.0.1:5000',
-): LLMModelFunction<string, LlamaOptions> {
+): LLMModelFunction {
   return async (input: string, options?: LlamaOptions & { signal?: AbortSignal }) => {
     const res = await fetch(`${baseUrl.replace(/\/$/, '')}/api/v1/generate`, {
       method: 'POST',

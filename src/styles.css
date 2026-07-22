@@ -42,3 +42,45 @@ body {
   display: inline-block;
   animation: loadingStatusSlideFade 1.35s ease;
 }
+
+.hero-block {
+  position: relative;
+  padding: 0.5rem 0.75rem 0.25rem;
+}
+
+.hero-heading {
+  margin: 0;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  background: linear-gradient(120deg, #f8fafc 0%, #cbd5e1 45%, #7dd3fc 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 8px 26px rgba(56, 189, 248, 0.2);
+}
+
+.hero-subheading {
+  line-height: 1.75;
+  text-wrap: pretty;
+  color: #cbd5e1;
+}
+
+.hero-subheading::before {
+  content: '';
+  display: block;
+  width: 3rem;
+  height: 2px;
+  margin: 0 auto 0.9rem;
+  background: linear-gradient(90deg, rgba(125, 211, 252, 0), rgba(125, 211, 252, 0.9), rgba(125, 211, 252, 0));
+}
+
+@media (max-width: 640px) {
+  .hero-heading {
+    text-shadow: 0 4px 18px rgba(56, 189, 248, 0.18);
+  }
+
+  .hero-subheading {
+    line-height: 1.6;
+  }
+}

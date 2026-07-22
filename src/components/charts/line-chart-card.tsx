@@ -12,14 +12,14 @@ import { ChartCard, ChartCardProps } from '@/components/charts/chart-card';
 
 const defaultColor = '#22c55e';
 
-export type LineChartCardProps<T> = ChartCardProps & {
-    data: T[];
-    xKey: keyof T | string;
-    valueKey: keyof T | string;
+export type LineChartCardProps = ChartCardProps & {
+    data: Record<string, any>[];
+    xKey: string;
+    valueKey: string;
     color?: string;
 };
 
-export function LineChartCard<T extends Record<string, any>>({
+export function LineChartCard({
     data,
     xKey,
     valueKey,
@@ -27,7 +27,7 @@ export function LineChartCard<T extends Record<string, any>>({
     subtitle,
     color = defaultColor,
     className,
-}: LineChartCardProps<T>) {
+}: LineChartCardProps) {
     return (
         <ChartCard title={title} subtitle={subtitle} className={className}>
             <ResponsiveContainer width="100%" height="100%">

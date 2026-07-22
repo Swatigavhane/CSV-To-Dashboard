@@ -1,24 +1,11 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import type { LLMModelFunction, LLMModelOptions, UseLLMHook, UseLLMResult } from './types';
+import { executeWithRetry } from './llm-utils';
 
-export type LLMModelOptions = object & { signal?: AbortSignal };
+export type { LLMModelFunction, LLMModelOptions, UseLLMHook, UseLLMResult } from './types';
 
-export type LLMModelFunction<
-  TResponse = unknown,
-  TOptions extends LLMModelOptions = LLMModelOptions,
-> = (input: string, options?: TOptions) => Promise<TResponse>;
-
-export interface UseLLMResult<TResponse = unknown> {
-  response: TResponse | null;
-  loading: boolean;
-  error: Error | null;
-  callLLM: (input: string, options?: Record<string, unknown>) => Promise<TResponse | void>;
-  abort: () => void;
-}
-
-export function useLLM<TResponse = unknown, TOptions extends LLMModelOptions = LLMModelOptions>(
-  model: LLMModelFunction<TResponse, TOptions>,
-): UseLLMResult<TResponse> {
-  const [response, setResponse] = useState<TResponse | null>(null);
+function useLLMImpl(model: LLMModelFunction): UseLLMResult {
+  const [response, setResponse] = useState<unknown>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
   const abortController = useRef<AbortController | null>(null);
@@ -41,7 +28,18 @@ export function useLLM<TResponse = unknown, TOptions extends LLMModelOptions = L
       setResponse(null);
 
       try {
-        const result = await model(input, { ...(options ?? {}), signal: controller.signal } as TOptions);
+        const result = await executeWithRetry(async () => {
+          if (controller.signal.aborted) {
+            throw new DOMException('The operation was aborted.', 'AbortError');
+          }
+
+          return model(input, { ...(options ?? {}), signal: controller.signal } as LLMModelOptions);
+        }, { maxRetries: 2, delayMs: 300 });
+
+        if (controller.signal.aborted) {
+          return;
+        }
+
         setResponse(result);
         return result;
       } catch (err) {
@@ -67,3 +65,5 @@ export function useLLM<TResponse = unknown, TOptions extends LLMModelOptions = L
 
   return { response, loading, error, callLLM, abort };
 }
+
+export const useLLM: UseLLMHook = useLLMImpl;

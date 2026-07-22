@@ -3,3 +3,7 @@ dist/
 .env
 .env.*
 !.env.example
+!config/
+!config/env/
+!config/env/.env.development
+config/env/.env.test

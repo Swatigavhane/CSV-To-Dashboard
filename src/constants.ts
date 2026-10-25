@@ -1,4 +1,7 @@
-export const LLM_ENDPOINT = 'http://localhost:8080/v1/models/llama-2-7b/generate';
+export const LLM_BASE_URL =
+    import.meta.env.Environment === 'production' ? window.location.origin : 'http://localhost:8080';
+
+export const LLM_ENDPOINT = `${LLM_BASE_URL}/v1/models/llama-2-7b/generate`;
 
 export const chartTypeMapping: Record<string, string> = {
     "Bar Chart": "BarChart",
@@ -6,7 +9,6 @@ export const chartTypeMapping: Record<string, string> = {
     "Area Chart": "AreaChart",
     "Pie Chart": "PieChart",
 };
-
 
 export const DUCK_DB_TABLE_NAME = 'uploaded_csv';
 

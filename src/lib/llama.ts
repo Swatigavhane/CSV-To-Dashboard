@@ -1,4 +1,5 @@
 import type { LLMModelFunction } from '@/hooks/types';
+import { LLM_BASE_URL } from '@/constants';
 
 export interface LlamaOptions {
   max_tokens?: number;
@@ -19,10 +20,10 @@ function isConnectionError(error: unknown) {
 }
 
 // Adapter for text-generation-inference (TGI) style endpoints.
-// Defaults to http://localhost:8080; adjust `baseUrl` to your server.
+// Uses the configured application endpoint by default; pass `baseUrl` to override it.
 export function llamaTGIModel(
   modelName: string,
-  baseUrl = 'http://localhost:8080',
+  baseUrl = LLM_BASE_URL,
 ): LLMModelFunction {
   return async (input: string, options?: LlamaOptions & { signal?: AbortSignal }) => {
     const body = {

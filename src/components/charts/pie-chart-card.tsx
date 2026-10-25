@@ -1,11 +1,10 @@
-import * as React from 'react';
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from 'recharts';
 
 import { ChartCard, ChartCardProps } from '@/components/charts/chart-card';
 
 const defaultColors = ['#38bdf8', '#22c55e', '#f97316', '#a855f7', '#f43f5e'];
 
-export type PieChartCardProps = ChartCardProps & {
+export type PieChartCardProps = Omit<ChartCardProps, 'children'> & {
     data: Record<string, any>[];
     nameKey: string;
     valueKey: string;

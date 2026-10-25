@@ -12,6 +12,12 @@ Convert a CSV file into charts using AI-generated chart configs and DuckDB queri
 
 1. Install dependencies:
 
+
+
+
+
+
+
 ```bash
 npm install
 ```

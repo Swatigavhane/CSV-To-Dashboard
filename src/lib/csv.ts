@@ -1,8 +1,8 @@
 import Papa from 'papaparse';
 
-export async function parseCsvFile(file: File): Promise<Record<string, any>[]> {
+export async function parseCsvFile(file: File): Promise<Record<string, string>[]> {
   return new Promise((resolve, reject) => {
-    Papa.parse(file, {
+    Papa.parse<Record<string, string>>(file, {
       header: true,
       skipEmptyLines: true,
       complete: (results) => {

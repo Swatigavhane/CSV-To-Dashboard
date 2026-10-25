@@ -12,7 +12,7 @@ import { ChartCard, ChartCardProps } from '@/components/charts/chart-card';
 
 const defaultColor = '#22c55e';
 
-export type LineChartCardProps = ChartCardProps & {
+export type LineChartCardProps = Omit<ChartCardProps, 'children'> & {
     data: Record<string, any>[];
     xKey: string;
     valueKey: string;

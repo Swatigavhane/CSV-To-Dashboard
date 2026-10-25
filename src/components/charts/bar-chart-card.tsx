@@ -11,7 +11,7 @@ import { ChartCard, ChartCardProps } from '@/components/charts/chart-card';
 
 const defaultColor = '#38bdf8';
 
-export type BarChartCardProps = ChartCardProps & {
+export type BarChartCardProps = Omit<ChartCardProps, 'children'> & {
     data: Record<string, any>[];
     xKey: string;
     valueKey: string;

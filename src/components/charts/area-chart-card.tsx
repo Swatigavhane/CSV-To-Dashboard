@@ -1,4 +1,3 @@
-import * as React from 'react';
 import {
     ResponsiveContainer,
     AreaChart,
@@ -13,7 +12,7 @@ import { ChartCard, ChartCardProps } from '@/components/charts/chart-card';
 
 const defaultColor = '#f97316';
 
-export type AreaChartCardProps = ChartCardProps & {
+export type AreaChartCardProps = Omit<ChartCardProps, 'children'> & {
     data: Record<string, any>[];
     xKey: string;
     valueKey: string;

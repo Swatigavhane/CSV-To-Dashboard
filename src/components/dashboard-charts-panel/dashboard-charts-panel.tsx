@@ -1,12 +1,19 @@
-import { AreaChartCard, BarChartCard, PieChartCard, LineChartCard } from '@/components/charts';
+import { AreaChartCard, BarChartCard, LineChartCard, PieChartCard } from '@/components/charts';
 import { useLlmResponseContext } from '@/context/llm-response-context';
 import { ItransformData } from '@/context/types';
 import { isNonEmptyArray, transformLLMResponse } from '@/utils';
 
+function isChartData(value: unknown): value is Record<string, any>[] {
+    return (
+        Array.isArray(value) &&
+        value.length > 0 &&
+        value.every((row) => row !== null && typeof row === 'object' && !Array.isArray(row))
+    );
+}
+
 const widgetRegistry = {
     BarChart: BarChartCard,
     LineChart: LineChartCard,
-    PieChart: PieChartCard,
     AreaChart: AreaChartCard,
 };
 
@@ -29,7 +36,7 @@ export function DashboardChartsPanel() {
                     <div className="grid grid-cols-2 gap-4">
                         {transformChartData.map((chart) => {
                             const { x_axis, value_axis, title, subtitle } = chart;
-                            const chartData = isNonEmptyArray(chart.query_data) ? chart.query_data : parsedCsv;
+                            const chartData = isChartData(chart.query_data) ? chart.query_data : parsedCsv;
                             if (chart.chart_type === 'PieChart') {
                                 return (
                                     <PieChartCard

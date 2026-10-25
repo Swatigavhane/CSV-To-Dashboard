@@ -7,7 +7,7 @@ export interface LlamaOptions {
 }
 
 function getEndpoint(baseUrl: string, modelName: string) {
-  return `${baseUrl.replace(/\/$/, '')}/v1/models/${modelName}/generate`;
+  return `${baseUrl.replace(/\/$/, '')}/api/v1/models/${modelName}/generate`;
 }
 
 function isConnectionError(error: unknown) {

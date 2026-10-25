@@ -1,6 +1,6 @@
-export const LLM_BASE_URL = window.location.origin;
+export const LLM_BASE_URL = typeof window === 'undefined' ? '' : window.location.origin;
 
-export const LLM_ENDPOINT = `${LLM_BASE_URL}/v1/models/llama-2-7b/generate`;
+export const LLM_ENDPOINT = `${LLM_BASE_URL}/api/v1/models/llama-2-7b/generate`;
 
 export const chartTypeMapping: Record<string, string> = {
     "Bar Chart": "BarChart",

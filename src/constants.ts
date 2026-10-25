@@ -1,5 +1,4 @@
-export const LLM_BASE_URL =
-    import.meta.env.Environment === 'production' ? window.location.origin : 'http://localhost:8080';
+export const LLM_BASE_URL = window.location.origin;
 
 export const LLM_ENDPOINT = `${LLM_BASE_URL}/v1/models/llama-2-7b/generate`;
 

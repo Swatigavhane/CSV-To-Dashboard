@@ -25,6 +25,8 @@ import {
 export async function suggestChart(reqBody) {
     try {
         const apiKey = process.env.GROQ_API_KEY;
+        console.log('process.env:', process.env);
+        console.log('GROQ_API_KEY:', apiKey ? 'Configured' : 'Not Configured');
         if (!apiKey) {
             throw new Error('GROQ_API_KEY is not configured for this deployment');
         }

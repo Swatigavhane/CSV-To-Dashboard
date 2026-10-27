@@ -1,4 +1,4 @@
-import { InferenceClient } from '@huggingface/inference';
+import Groq from 'groq-sdk';
 import 'dotenv/config';
 import {
     extractSchemaKeys,
@@ -22,24 +22,28 @@ import {
     SUGGEST_CHART_TYPES,
 } from './constants/suggest-chart-constants.mjs';
 
-const token = process.env.HUGGINGFACE_TOKEN;
-const client = token ? new InferenceClient(token) : new InferenceClient();
-
 export async function suggestChart(reqBody) {
-    console.log('Received reqBody:', reqBody);
-    const schemaKeys = extractSchemaKeys(reqBody);
-    const schemaMap = extractSchemaMap(reqBody);
-    const userPromptText = extractUserPromptText(reqBody);
-    const timeGrain = detectTimeGrain(userPromptText);
-
     try {
+        const apiKey = process.env.GROQ_API_KEY;
+        if (!apiKey) {
+            throw new Error('GROQ_API_KEY is not configured for this deployment');
+        }
+        if (typeof reqBody?.prompt !== 'string' || !reqBody.prompt.trim()) {
+            throw new Error('Request body must include a non-empty prompt');
+        }
+
+        const client = new Groq({ apiKey });
+        const schemaKeys = extractSchemaKeys(reqBody);
+        const schemaMap = extractSchemaMap(reqBody);
+        const userPromptText = extractUserPromptText(reqBody);
+        const timeGrain = detectTimeGrain(userPromptText);
         const systemPrompt = await loadAndRenderPrompt(SUGGEST_CHART_PROMPT_TEMPLATE, {
             chart_types: SUGGEST_CHART_TYPES,
             table_name: SUGGEST_CHART_TABLE_NAME,
         });
 
-        const result = await client.chatCompletion({
-            model: SUGGEST_CHART_MODEL, // or 14B if you have access
+        const result = await client.chat.completions.create({
+            model: SUGGEST_CHART_MODEL,
             messages: [
                 {
                     role: "system",
@@ -49,8 +53,10 @@ export async function suggestChart(reqBody) {
             ]
         });
 
-
-        let responseText = result.choices[0].message.content;
+        let responseText = result.choices?.[0]?.message?.content;
+        if (typeof responseText !== 'string' || !responseText.trim()) {
+            throw new Error('Groq returned an empty chart suggestion');
+        }
         let parsedJson = safeParse(responseText);
         const invalidAxes = findInvalidAxisColumns(parsedJson, schemaKeys);
         const unsupportedQueries = findUnsupportedDuckDbQueries(parsedJson);
@@ -73,7 +79,7 @@ export async function suggestChart(reqBody) {
                     : '',
             ].filter(Boolean).join('\n');
 
-            const retryResult = await client.chatCompletion({
+            const retryResult = await client.chat.completions.create({
                 model: SUGGEST_CHART_MODEL,
                 messages: [
                     { role: "system", content: systemPrompt },
@@ -86,7 +92,10 @@ export async function suggestChart(reqBody) {
                 ]
             });
 
-            responseText = retryResult.choices[0].message.content;
+            responseText = retryResult.choices?.[0]?.message?.content;
+            if (typeof responseText !== 'string' || !responseText.trim()) {
+                throw new Error('Groq returned an empty chart suggestion after retry');
+            }
             parsedJson = safeParse(responseText);
         }
 
@@ -109,7 +118,6 @@ export async function suggestChart(reqBody) {
         };
     } catch (error) {
         console.error('Error fetching suggestion:', error);
-        return null;
+        throw error;
     }
 }
-

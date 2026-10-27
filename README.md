@@ -22,10 +22,10 @@ Convert a CSV file into charts using AI-generated chart configs and DuckDB queri
 npm install
 ```
 
-2. Create or update the development env file at `config/env/.env.development`:
+2. Create or update the development env file at `config/env/.env.development` with a Groq API key:
 
 ```env
-HUGGINGFACE_TOKEN=your_token_here
+GROQ_API_KEY=your_groq_api_key_here
 PORT=8080
 CORS_ORIGIN=http://localhost:5173
 ```

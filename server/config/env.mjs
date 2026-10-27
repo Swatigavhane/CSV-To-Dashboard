@@ -19,6 +19,6 @@ export function loadServerConfig() {
     return {
         port: Number(getEnvValue('PORT')),
         corsOrigin: getEnvValue('CORS_ORIGIN'),
-        huggingFaceToken: getEnvValue('HUGGINGFACE_TOKEN') || '',
+        groqApiKey: getEnvValue('GROQ_API_KEY') || '',
     };
 }

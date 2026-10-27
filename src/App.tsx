@@ -74,9 +74,19 @@ export default function App() {
                                 </p>
                             </div>
                             <ChatInput
-                                placeholder="Ask anything or upload a file..."
+                                placeholder="Ask anything or upload a file... e.g., show monthly revenue , yearly revenue, Top Performing Products/Services: List the top 5 revenue-generating items."
                                 onSubmit={handleSubmit}
                             />
+                            <p className="mt-3 text-center text-sm text-slate-400">
+                                Need a sample?{' '}
+                                <a
+                                    href="/images/sample-sales.csv"
+                                    download="sample-sales.csv"
+                                    className="text-sky-400 underline underline-offset-4 hover:text-sky-300"
+                                >
+                                    Download sample-sales.csv
+                                </a>
+                            </p>
                             <LlmResponseStatus llmLoading={llmLoading} llmError={llmError} />
                         </div>
                     )}
@@ -85,4 +95,3 @@ export default function App() {
         </LlmResponseProvider>
     );
 }
-

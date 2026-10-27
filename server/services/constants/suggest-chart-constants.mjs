@@ -1,4 +1,4 @@
-export const SUGGEST_CHART_MODEL = 'llama-3.3-70b-versatile';
+export const SUGGEST_CHART_MODEL = 'openai/gpt-oss-20b';
 export const SUGGEST_CHART_PROMPT_TEMPLATE = 'suggest-chart/system.v1.txt';
 export const SUGGEST_CHART_TYPES = "'Bar Chart', 'Line Chart', 'Pie Chart', 'Area Chart'";
 export const SUGGEST_CHART_TABLE_NAME = 'csv_data';
